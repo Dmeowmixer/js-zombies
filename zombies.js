@@ -124,7 +124,9 @@ function Player(name,health,strength,speed){
  *
  * @name checkPack
  */
-
+Player.prototype.checkPack = function(){
+  console.log(this.getPack().join(","))
+}
 /**
  * Player Class Method => takeItem(item)
  * -----------------------------
@@ -135,22 +137,34 @@ function Player(name,health,strength,speed){
  * Before returning true or false, print a message containing the player's
  *   name and item's name if successful.  Otherwise, print a message saying
  *   that the pack is full so the item could not be stored.
- * Note: The player is allowed to store similar items (items with the same name).
+ * Note: The player is allowed to store similar items (items with the same name). << .some array method!
  * You should be able to invoke this function on a Player instance.
- *
+ *to delete something can delete from getPack , which directly changes it.
  * @name takeItem
  * @param {Item/Weapon/Food} item   The item to take.
  * @return {boolean} true/false     Whether player was able to store item in pack.
  */
-
-Player.prototype.takeItem = function(Item,Weapon,Food){
-  if (this.pack.length < 3){
-    console.log(this.name + " Has successfully aquired " + this.item)
-    return true;
-  else {
-    console.log("How are you going to fit that in there?")
+/* Player.prototype.takeItem = function(item){
+  if (this.checkPack.length >= 3 || item.length > 1){
+    console.log("It's too big for me!");
     return false;
-    }
+  }
+  else{ 
+    console.log(this.name + " Has successfully acquired " + this.item);
+    this.getPack().push(item);
+    return true;
+  }
+}
+*/
+Player.prototype.takeItem = function(item){
+  if (this.getPack().length < 3){
+    console.log(this.name + " Has successfully acquired " + this.item);
+    this.getPack().push(item);
+    return true;
+  }
+  else {
+    console.log("It's too big for me!");
+    return false;
   }
 }
 
@@ -179,7 +193,18 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @param {Item/Weapon/Food} item   The item to discard.
  * @return {boolean} true/false     Whether player was able to remove item from pack.
  */
-
+Player.prototype.discardItem = function(item) {
+  var itemfound = this.getPack().indexOf(item);
+  if (itemfound != -1){
+    console.log(this.name + " threw " + item + " TO THE GROUND then walked away like a boss ")
+    this.getPack().splice(itemfound,1);
+    return true;
+  }
+  else {
+    console.log(item + " IS NOT THERE, IT'S ALL GONE!"); 
+    return false;
+  }
+}
 
 /**
  * Player Class Method => equip(itemToEquip)
@@ -201,7 +226,25 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @param {Weapon} itemToEquip  The weapon item to equip.
  */
 
-
+Player.prototype.equip = function(itemToEquip){
+var pack = this.getPack();
+var weaponindex = pack.indexOf(itemToEquip);
+  if (itemToEquip instanceof Weapon &&  weaponindex != -1){
+    if (this.equipped) {
+      pack.splice(weaponindex,1,this.equipped);
+      this.equipped = itemToEquip;
+      return true;
+    }
+    else if (this.equipped === false) {
+      this.equipped = itemToEquip;
+      pack.splice(weaponindex,1)
+      return true;
+    }
+  }
+  else {
+    return false;
+  }
+}
 /**
  * Player Class Method => eat(itemToEat)
  * -----------------------------
@@ -220,7 +263,17 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @name eat
  * @param {Food} itemToEat  The food item to eat.
  */
-
+Player.prototype.eat = function(itemToEat){
+  var pack = this.getPack();
+  var foodindex = pack.indexOf(itemToEat);
+  if(itemToEat instanceof Food && foodindex != -1){
+    pack.splice(foodindex,1);
+    this.health += itemToEat.energy;
+      if(this.health > this.getMaxHealth()){
+        this.health = this.getMaxHealth();
+      }
+  }
+}
 
 /**
  * Player Class Method => useItem(item)
@@ -234,6 +287,14 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @name useItem
  * @param {Item/Weapon/Food} item   The item to use.
  */
+Player.prototype.useItem = function(item){
+  if(item instanceof Weapon){
+    this.equip(item);
+  }
+    else if(item instanceof Food){
+      this.eat(item);
+    }
+}
 
 
 /**
@@ -250,6 +311,17 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @return {string/boolean}   Weapon name or false if nothing is equipped.
  */
 
+Player.prototype.equippedWith = function(){
+  console.log(this.name);
+  if (this.equipped){
+    console.log(this.name + this.equipped.name);
+    return this.equipped.name;
+  }
+  else if(this.equipped === false){
+    console.log("Put some clothes on!");
+    return false;
+  }
+}
 
 /**
  * Class => Zombie(health, strength, speed)
@@ -266,6 +338,13 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @property {number} speed
  * @property {boolean} isAlive      Default value should be `true`.
  */
+function Zombie(health,strength,speed){
+  this.health = health;
+  this.strength = strength
+  this.speed = speed;
+  this.isAlive = true;
+  var maxHealth = this.health;
+}
 
 
 /**
@@ -282,13 +361,19 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
  */
-
+function FastZombie(health,strength,speed){
+  Zombie.call(this,health,strength,speed)
+}
 
 /**
  * FastZombie Extends Zombie Class
  * -----------------------------
  */
-
+FastZombie.prototype = Object.create(Zombie.prototype, {
+  constructor: {
+    value: Zombie
+  }
+});
 
 
 /**
@@ -305,7 +390,9 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
  */
-
+function StrongZombie(health,strength,speed){
+  
+}
 
 /**
  * StrongZombie Extends Zombie Class
@@ -365,7 +452,7 @@ Player.prototype.takeItem = function(Item,Weapon,Food){
  * Sample run.
  * Feel free to edit this and check your game logic.
  */
-//function runGame() {
+function runGame() {
   // var player = new Player("Joan", 500, 30, 70);
   // var zombie = new Zombie(40, 50, 20);
   // var charger = new FastZombie(175, 25, 60);
