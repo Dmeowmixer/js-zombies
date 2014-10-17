@@ -8,6 +8,9 @@
  * @property {string} name
  */
 
+function Item(name){
+  this.name = name;
+}
 
 /**
  * Class => Weapon(name, damage)
@@ -25,13 +28,21 @@
  * @property {number} damage
  */
 
+function Weapon(name,damage){
+  this.damage = damage;
+  Item.call(this,name);
+}
 
 /**
  * Weapon Extends Item Class
  * -----------------------------
  */
 
-
+Weapon.prototype = Object.create(Item.prototype, {
+  constructor: {
+    value: Item
+  }
+});
 
 /**
  * Class => Food(name, energy)
@@ -48,14 +59,21 @@
  * @param {number} energy     The energy the food provides.
  * @property {number} energy
  */
-
+function Food(name,energy){
+  this.energy = energy;
+  Item.call(this,name);
+}
 
 /**
  * Food Extends Item Class
  * -----------------------------
  */
 
-
+Food.prototype = Object.create(Item.prototype, {
+  constructor: {
+    value: Item
+  }
+});
 
 /**
  * Class => Player(name, health, strength, speed)
@@ -78,7 +96,22 @@
  * @property {method} getPack              Returns private variable `pack`.
  * @property {method} getMaxHealth         Returns private variable `maxHealth`.
  */
-
+function Player(name,health,strength,speed){
+  this.name = name;
+  this.health = health;
+  this.strength = strength
+  this.speed = speed;
+  this.isAlive = true;
+  this.equipped = false;
+  var pack = [];
+  var maxHealth = 1000;
+  Player.prototype.getPack = function(){
+    return pack;
+  }
+  Player.prototype.getMaxHealth = function(){
+    return maxHealth;
+  }
+}
 
 /**
  * Player Class Method => checkPack()
@@ -91,7 +124,6 @@
  *
  * @name checkPack
  */
-
 
 /**
  * Player Class Method => takeItem(item)
@@ -111,6 +143,16 @@
  * @return {boolean} true/false     Whether player was able to store item in pack.
  */
 
+Player.prototype.takeItem = function(Item,Weapon,Food){
+  if (this.pack.length < 3){
+    console.log(this.name + " Has successfully aquired " + this.item)
+    return true;
+  else {
+    console.log("How are you going to fit that in there?")
+    return false;
+    }
+  }
+}
 
 /**
  * Player Class Method => discardItem(item)
@@ -323,7 +365,7 @@
  * Sample run.
  * Feel free to edit this and check your game logic.
  */
-function runGame() {
+//function runGame() {
   // var player = new Player("Joan", 500, 30, 70);
   // var zombie = new Zombie(40, 50, 20);
   // var charger = new FastZombie(175, 25, 60);
